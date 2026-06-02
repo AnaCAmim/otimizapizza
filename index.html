@@ -3,439 +3,454 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OtimizaPizza — Programação Linear</title>
+  <title>OtimizaPizza — Dashboard Interativo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-      svg: { fontCache: 'global' }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
+      --blue:      #1a3a7c;
       --blue-dark: #0d1b3e;
-      --blue-mid:  #1a3a7c;
+      --blue-light:#2a5298;
       --green:     #2ecc71;
-      --green-dark:#27ae60;
+      --green-dk:  #27ae60;
+      --red:       #e74c3c;
+      --yellow:    #f39c12;
       --white:     #ffffff;
       --gray-bg:   #f4f6fa;
       --gray-card: #e8ecf4;
       --text:      #1e2a45;
-      --code-bg:   #0d1117;
+      --muted:     #6b7a99;
+      --radius:    12px;
+      --shadow:    0 2px 12px rgba(0,0,0,.09);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--gray-bg);
-      color: var(--text);
-    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--gray-bg); color: var(--text); }
 
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-mid) 100%);
-      color: var(--white);
-      padding: 3rem 1.5rem 2.5rem;
-      text-align: center;
-    }
-    .hero .badge {
-      display: inline-block;
-      background: var(--green);
-      color: var(--blue-dark);
-      font-weight: 700;
-      font-size: .75rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: .3rem .9rem;
-      border-radius: 999px;
-      margin-bottom: 1.2rem;
-    }
-    .hero h1 {
-      font-size: clamp(1.8rem, 5vw, 3rem);
-      font-weight: 800;
-      line-height: 1.2;
-    }
-    .hero h1 span { color: var(--green); }
-    .hero p {
-      margin-top: .8rem;
-      font-size: 1.05rem;
-      opacity: .85;
-    }
-
-    /* ── LAYOUT ── */
-    .container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
-    section { padding: 2.5rem 0; }
-    section + section { border-top: 1px solid var(--gray-card); }
-
-    h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--blue-mid);
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      margin-bottom: 1.4rem;
-    }
-    h2 .num {
-      background: var(--blue-mid);
-      color: #fff;
-      width: 2rem; height: 2rem;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .95rem;
-      flex-shrink: 0;
-    }
-
-    /* ── INFOGRAPHIC CARDS ── */
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
-    }
-    .info-card {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 1.4rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,.07);
-      border-top: 4px solid var(--blue-mid);
-    }
-    .info-card.green { border-top-color: var(--green); }
-    .info-card h3 {
-      font-size: .85rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: var(--blue-mid);
-      margin-bottom: .8rem;
-    }
-    .info-card.green h3 { color: var(--green-dark); }
-    .ingredient-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: .35rem 0;
-      border-bottom: 1px dashed var(--gray-card);
-      font-size: .92rem;
-    }
-    .ingredient-row:last-child { border-bottom: none; }
-    .ingredient-row strong { color: var(--blue-mid); }
-    .lucro-badge {
-      display: inline-block;
-      background: var(--green);
-      color: var(--blue-dark);
-      font-weight: 700;
-      padding: .25rem .8rem;
-      border-radius: 8px;
-      font-size: .95rem;
-      margin-top: .8rem;
-    }
-
-    /* ── MATH MODEL ── */
-    .math-block {
-      background: var(--white);
-      border-left: 4px solid var(--blue-mid);
-      border-radius: 0 10px 10px 0;
-      padding: 1.2rem 1.6rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,.05);
-      font-size: 1.05rem;
-      overflow-x: auto;
-    }
-    .math-block .label {
-      font-size: .78rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: #888;
-      margin-bottom: .5rem;
-    }
-    .constraint-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: .5rem;
-    }
-    .constraint-table th {
-      background: var(--blue-mid);
-      color: #fff;
-      padding: .6rem 1rem;
-      text-align: left;
-      font-size: .85rem;
-    }
-    .constraint-table td {
-      padding: .55rem 1rem;
-      border-bottom: 1px solid var(--gray-card);
-      font-size: .93rem;
-    }
-    .constraint-table tr:last-child td { border-bottom: none; }
-    .constraint-table tr:nth-child(even) td { background: var(--gray-bg); }
-
-    /* ── CODE ── */
-    .code-wrapper {
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0,0,0,.15);
-    }
-    .code-header {
-      background: #1e2a45;
-      padding: .7rem 1.2rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .code-header .dot {
-      width: 12px; height: 12px;
-      border-radius: 50%;
-    }
-    .code-header .dot:nth-child(1){ background:#ff5f57; }
-    .code-header .dot:nth-child(2){ background:#febc2e; }
-    .code-header .dot:nth-child(3){ background:#28c840; }
-    .code-header span {
-      margin-left: auto;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .75rem;
-      color: #aaa;
-    }
-    pre { margin: 0 !important; border-radius: 0 !important; }
-    code.hljs { padding: 1.5rem !important; font-size: .88rem !important; font-family: 'JetBrains Mono', monospace !important; }
-
-    /* ── RESULTS ── */
-    .results-hero {
-      background: linear-gradient(135deg, var(--blue-dark), var(--blue-mid));
-      border-radius: 16px;
-      padding: 2rem;
-      color: #fff;
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    .results-hero .subtitle {
-      font-size: .85rem;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      opacity: .7;
-      margin-bottom: .5rem;
-    }
-    .results-hero .lucro {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--green);
-      line-height: 1;
-    }
-    .results-hero .lucro-label {
-      font-size: .95rem;
-      opacity: .8;
-      margin-top: .3rem;
-    }
-
-    .result-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    @media(max-width: 520px){ .result-cards { grid-template-columns: 1fr; } }
-    .result-card {
-      background: var(--white);
-      border-radius: 12px;
-      padding: 1.3rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,.07);
-      text-align: center;
-    }
-    .result-card .pizza-icon { font-size: 2.2rem; }
-    .result-card .pizza-name {
-      font-size: .8rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      color: #888;
-      margin: .4rem 0;
-    }
-    .result-card .pizza-qty {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--blue-mid);
-      line-height: 1;
-    }
-    .result-card .pizza-qty span {
-      font-size: 1rem;
-      font-weight: 400;
-      color: #aaa;
-    }
-
-    .stock-bars { display: flex; flex-direction: column; gap: .8rem; }
-    .stock-bar-item label {
-      display: flex;
-      justify-content: space-between;
-      font-size: .85rem;
-      margin-bottom: .3rem;
-    }
-    .stock-bar-track {
-      background: var(--gray-card);
-      border-radius: 999px;
-      height: 10px;
-      overflow: hidden;
-    }
-    .stock-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: var(--blue-mid);
-      transition: width .6s ease;
-    }
-    .stock-bar-fill.full { background: var(--green-dark); }
-
-    /* ── STATUS ── */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-      border-radius: 999px;
-      padding: .4rem 1rem;
-      font-weight: 600;
-      font-size: .9rem;
-      margin-bottom: 1.5rem;
-    }
-    .status-badge::before {
-      content: '✓';
-      background: var(--green-dark);
-      color: #fff;
-      width: 1.4rem; height: 1.4rem;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .75rem;
-    }
-
-    /* ── FOOTER ── */
-    footer {
+    /* TOP BAR */
+    #top-bar {
+      position: sticky; top: 0; z-index: 100;
       background: var(--blue-dark);
-      color: rgba(255,255,255,.5);
-      text-align: center;
-      padding: 1.5rem;
-      font-size: .82rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.3);
+    }
+    #top-bar .inner {
+      max-width: 960px; margin: 0 auto; padding: .7rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .logo { font-weight: 800; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: .5rem; }
+    .logo-badge {
+      background: var(--green); color: var(--blue-dark);
+      font-size: .65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; padding: .2rem .6rem; border-radius: 999px;
+    }
+    .lucro-live {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px; padding: .4rem 1.2rem;
+      display: flex; flex-direction: column; align-items: flex-end;
+    }
+    .lucro-live .lbl { font-size: .65rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .08em; }
+    #lucro-atual { font-size: 1.15rem; font-weight: 800; color: var(--green); line-height: 1; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-light) 100%);
+      padding: 2.5rem 1.5rem 2rem; text-align: center; color: #fff;
+    }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.5rem); font-weight: 800; line-height: 1.2; }
+    .hero h1 span { color: var(--green); }
+    .hero p { margin-top: .6rem; opacity: .8; font-size: 1rem; }
+
+    /* LAYOUT */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 2rem 0; }
+    section + section { border-top: 2px solid var(--gray-card); }
+    .section-title {
+      display: flex; align-items: center; gap: .7rem;
+      font-size: 1.15rem; font-weight: 700; color: var(--blue); margin-bottom: 1.4rem;
+    }
+    .section-title .icon {
+      width: 2.1rem; height: 2.1rem; background: var(--blue); color: #fff;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+
+    /* STOCK */
+    .stock-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .stock-card {
+      background: var(--white); border-radius: var(--radius); padding: 1rem;
+      box-shadow: var(--shadow); text-align: center;
+    }
+    .stock-card label { font-size: .8rem; color: var(--muted); display: block; margin-bottom: .5rem; font-weight: 600; }
+    .stock-card input {
+      width: 100%; border: 2px solid var(--gray-card); border-radius: 8px;
+      padding: .5rem; text-align: center; font-size: 1.1rem; font-weight: 700;
+      font-family: 'Inter', sans-serif; color: var(--text); transition: border-color .2s;
+    }
+    .stock-card input:focus { outline: none; border-color: var(--blue); }
+    .btn-reset {
+      background: none; border: 2px solid var(--gray-card); border-radius: 8px;
+      padding: .5rem 1.2rem; cursor: pointer; font-size: .85rem; color: var(--muted);
+      font-family: 'Inter', sans-serif; transition: all .2s;
+    }
+    .btn-reset:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* PIZZA CARDS */
+    .pizza-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+    @media(max-width:500px){ .pizza-cards { grid-template-columns: 1fr; } }
+    .pizza-card {
+      background: var(--white); border-radius: var(--radius); padding: 1.4rem;
+      box-shadow: var(--shadow); border: 2px solid transparent; transition: border-color .25s, transform .15s;
+      position: relative; overflow: hidden;
+    }
+    .pizza-card.card-m { border-top: 4px solid var(--blue); }
+    .pizza-card.card-c { border-top: 4px solid var(--red); }
+    .pizza-card.shake { animation: shake .35s; }
+    @keyframes shake {
+      0%,100%{ transform:translateX(0); }
+      20%{ transform:translateX(-6px); }
+      40%{ transform:translateX(6px); }
+      60%{ transform:translateX(-4px); }
+      80%{ transform:translateX(4px); }
+    }
+    .pizza-emoji { font-size: 2.5rem; margin-bottom: .5rem; }
+    .pizza-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
+    .pizza-lucro { font-size: .85rem; color: var(--muted); margin-bottom: .7rem; }
+    .pizza-lucro strong { color: var(--green-dk); font-size: 1rem; }
+    .pizza-ing { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .9rem; }
+    .ing-tag {
+      background: var(--gray-bg); border-radius: 999px;
+      padding: .2rem .6rem; font-size: .72rem; color: var(--muted);
+    }
+    .pizza-counter { display: flex; align-items: center; gap: .8rem; margin-bottom: .7rem; }
+    .btn-counter {
+      width: 2.4rem; height: 2.4rem; border-radius: 8px; border: 2px solid var(--gray-card);
+      background: var(--white); font-size: 1.3rem; cursor: pointer; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; font-family: 'Inter', sans-serif; color: var(--text);
+    }
+    .btn-counter:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+    .btn-counter:disabled { opacity: .35; cursor: default; }
+    .btn-counter.btn-add { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn-counter.btn-add:hover:not(.blocked) { background: var(--blue-light); border-color: var(--blue-light); }
+    .btn-counter.btn-add.blocked { background: var(--gray-card); border-color: var(--gray-card); color: var(--muted); cursor: not-allowed; }
+    .count { font-size: 1.8rem; font-weight: 800; min-width: 2.5rem; text-align: center; }
+    .pizza-subtotal { font-size: .85rem; color: var(--muted); }
+    .pizza-subtotal strong { color: var(--text); }
+
+    /* ORDER SUMMARY */
+    .order-summary {
+      background: var(--white); border-radius: var(--radius); padding: 1rem 1.4rem;
+      box-shadow: var(--shadow); display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .order-summary .ost { font-size: .9rem; color: var(--muted); }
+    .order-summary .ost strong { color: var(--text); font-size: 1rem; }
+    .btn-zerar {
+      background: none; border: 2px solid #fcc; border-radius: 8px;
+      padding: .45rem 1rem; cursor: pointer; font-size: .85rem; color: var(--red);
+      font-family: 'Inter', sans-serif; transition: all .2s; font-weight: 600;
+    }
+    .btn-zerar:hover { background: #fff0f0; }
+
+    /* CHARTS */
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+    @media(max-width:600px){ .charts-grid { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: var(--white); border-radius: var(--radius); padding: 1.2rem;
+      box-shadow: var(--shadow);
+    }
+    .chart-card h3 { font-size: .82rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+
+    /* INGREDIENT BARS */
+    .ing-bars { display: flex; flex-direction: column; gap: 1rem; }
+    .ing-bar-item {}
+    .ing-bar-label { display: flex; justify-content: space-between; font-size: .85rem; margin-bottom: .35rem; }
+    .ing-bar-label .name { font-weight: 600; }
+    .ing-bar-label .val { color: var(--muted); font-size: .8rem; }
+    .ing-bar-track { background: var(--gray-card); border-radius: 999px; height: 14px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; transition: width .4s ease, background .3s; }
+    .bar-fill.ok   { background: linear-gradient(90deg, var(--blue), #4a90d9); }
+    .bar-fill.warn { background: linear-gradient(90deg, var(--yellow), #e67e22); }
+    .bar-fill.full { background: linear-gradient(90deg, var(--red), #c0392b); }
+
+    /* OPTIMIZER */
+    .btn-otimizar {
+      background: linear-gradient(135deg, var(--green-dk), #1fa355);
+      color: #fff; border: none; border-radius: var(--radius);
+      padding: .9rem 2rem; font-size: 1rem; font-weight: 700;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      box-shadow: 0 4px 14px rgba(46,204,113,.35); transition: all .2s;
+      display: inline-flex; align-items: center; gap: .6rem;
+    }
+    .btn-otimizar:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46,204,113,.45); }
+    #result-otimizador {
+      margin-top: 1.5rem; background: var(--white); border-radius: var(--radius);
+      padding: 1.5rem; box-shadow: var(--shadow); border-left: 5px solid var(--green-dk);
+    }
+    #result-otimizador.hidden { display: none; }
+    .opt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.2rem; }
+    .opt-stat { text-align: center; }
+    .opt-stat .lbl { font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: .3rem; }
+    .opt-stat .val { font-size: 2rem; font-weight: 800; color: var(--blue); }
+    .opt-stat.highlight .val { color: var(--green-dk); font-size: 1.5rem; }
+    .btn-aplicar {
+      background: var(--blue); color: #fff; border: none; border-radius: 8px;
+      padding: .7rem 1.5rem; font-size: .9rem; font-weight: 700;
+      cursor: pointer; font-family: 'Inter', sans-serif; transition: background .2s;
+    }
+    .btn-aplicar:hover { background: var(--blue-light); }
+
+    /* MATH */
+    .math-block {
+      background: var(--white); border-left: 4px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow);
+      font-size: 1rem; overflow-x: auto;
+    }
+    .math-block .lbl { font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: .5rem; }
+    .ct { width: 100%; border-collapse: collapse; margin-top: .5rem; }
+    .ct th { background: var(--blue); color: #fff; padding: .6rem 1rem; text-align: left; font-size: .82rem; }
+    .ct td { padding: .5rem 1rem; border-bottom: 1px solid var(--gray-card); font-size: .9rem; }
+    .ct tr:last-child td { border: none; }
+    .ct tr:nth-child(even) td { background: var(--gray-bg); }
+
+    /* CODE */
+    .code-wrap { border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.18); }
+    .code-header {
+      background: #1e2a45; padding: .65rem 1.2rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot:nth-child(1){ background:#ff5f57; }
+    .dot:nth-child(2){ background:#febc2e; }
+    .dot:nth-child(3){ background:#28c840; }
+    .code-header span { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: #aaa; }
+    pre { margin: 0 !important; border-radius: 0 !important; }
+    code.hljs { padding: 1.4rem !important; font-size: .85rem !important; font-family: 'JetBrains Mono', monospace !important; }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #1e2a45; color: #fff; border-radius: var(--radius);
+      padding: .8rem 1.5rem; font-size: .9rem; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,.3); z-index: 999; white-space: pre-line; text-align: center;
+      transition: transform .3s ease; pointer-events: none; max-width: 90vw;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.toast-success { border-left: 4px solid var(--green); }
+    #toast.toast-error   { border-left: 4px solid var(--red); }
+    #toast.toast-warn    { border-left: 4px solid var(--yellow); }
+
+    /* FOOTER */
+    footer {
+      background: var(--blue-dark); color: rgba(255,255,255,.45);
+      text-align: center; padding: 1.5rem; font-size: .8rem; margin-top: 2rem;
     }
     footer strong { color: var(--green); }
   </style>
 </head>
 <body>
 
+<!-- TOP BAR -->
+<div id="top-bar">
+  <div class="inner">
+    <div class="logo">🍕 OtimizaPizza <span class="logo-badge">Prog. Linear</span></div>
+    <div class="lucro-live">
+      <span class="lbl">Lucro Atual</span>
+      <span id="lucro-atual">R$ 0,00</span>
+    </div>
+  </div>
+</div>
+
 <!-- HERO -->
 <div class="hero">
-  <div class="badge">Programação Linear · PuLP</div>
-  <h1>Otimização de Lucro:<br><span>Muçarela</span> vs <span>Calabresa</span></h1>
-  <p>Solução com Python — Maximização de lucro respeitando o estoque</p>
+  <div class="container">
+    <h1>Dashboard Interativo de<br><span>Otimização de Pizzas</span></h1>
+    <p>Monte seu pedido, monitore o estoque em tempo real e descubra a solução ótima</p>
+  </div>
 </div>
 
 <div class="container">
 
-  <!-- 1. PROBLEMA -->
-  <section>
-    <h2><span class="num">1</span> O Problema</h2>
-    <div class="info-grid">
-      <!-- Objetivo -->
-      <div class="info-card">
-        <h3>🎯 Objetivo</h3>
-        <p style="font-size:.95rem;line-height:1.6">
-          Maximizar o lucro total de uma pizzaria, decidindo quantas pizzas de
-          <strong>Muçarela</strong> e <strong>Calabresa</strong> produzir,
-          respeitando os estoques de ingredientes disponíveis.
-        </p>
+  <!-- SEÇÃO 1: ESTOQUE -->
+  <section id="section-estoque">
+    <div class="section-title"><div class="icon">📦</div> Configurar Estoque</div>
+    <div class="stock-grid">
+      <div class="stock-card">
+        <label>🌾 Massa (kg)</label>
+        <input type="number" id="stock-massa" value="10" min="0" step="0.5" />
       </div>
-      <!-- Receita Muçarela -->
-      <div class="info-card">
-        <h3>🍕 Muçarela — <span style="color:var(--green-dark)">R$20 lucro</span></h3>
-        <div class="ingredient-row"><span>🌾 Massa</span><strong>0,5 kg</strong></div>
-        <div class="ingredient-row"><span>🧀 Queijo</span><strong>0,3 kg</strong></div>
-        <div class="ingredient-row"><span>🍅 Molho</span><strong>0,2 kg</strong></div>
-        <div class="lucro-badge">Lucro: R$ 20,00</div>
+      <div class="stock-card">
+        <label>🧀 Queijo (kg)</label>
+        <input type="number" id="stock-queijo" value="5" min="0" step="0.5" />
       </div>
-      <!-- Receita Calabresa -->
-      <div class="info-card green">
-        <h3>🍕 Calabresa — <span style="color:var(--green-dark)">R$25 lucro</span></h3>
-        <div class="ingredient-row"><span>🌾 Massa</span><strong>0,5 kg</strong></div>
-        <div class="ingredient-row"><span>🧀 Queijo</span><strong>0,2 kg</strong></div>
-        <div class="ingredient-row"><span>🍅 Molho</span><strong>0,2 kg</strong></div>
-        <div class="ingredient-row"><span>🌶️ Calabresa</span><strong>0,15 kg</strong></div>
-        <div class="lucro-badge">Lucro: R$ 25,00</div>
+      <div class="stock-card">
+        <label>🍅 Molho (kg)</label>
+        <input type="number" id="stock-molho" value="4" min="0" step="0.5" />
       </div>
-      <!-- Estoque -->
-      <div class="info-card">
-        <h3>📦 Estoque Disponível</h3>
-        <div class="ingredient-row"><span>🌾 Massa</span><strong>10 kg</strong></div>
-        <div class="ingredient-row"><span>🧀 Queijo</span><strong>5 kg</strong></div>
-        <div class="ingredient-row"><span>🍅 Molho</span><strong>4 kg</strong></div>
-        <div class="ingredient-row"><span>🌶️ Calabresa</span><strong>2 kg</strong></div>
+      <div class="stock-card">
+        <label>🌶️ Calabresa (kg)</label>
+        <input type="number" id="stock-calabresa" value="2" min="0" step="0.5" />
+      </div>
+    </div>
+    <button class="btn-reset" id="btn-reset-stock">↺ Restaurar padrão</button>
+  </section>
+
+  <!-- SEÇÃO 2: PEDIDO -->
+  <section id="section-pedido">
+    <div class="section-title"><div class="icon">🍕</div> Monte seu Pedido</div>
+    <div class="pizza-cards">
+      <!-- Muçarela -->
+      <div class="pizza-card card-m" id="card-m">
+        <div class="pizza-emoji">🧀</div>
+        <h3>Muçarela</h3>
+        <div class="pizza-lucro">Lucro por pizza: <strong>R$ 20,00</strong></div>
+        <div class="pizza-ing">
+          <span class="ing-tag">0,5 kg massa</span>
+          <span class="ing-tag">0,3 kg queijo</span>
+          <span class="ing-tag">0,2 kg molho</span>
+        </div>
+        <div class="pizza-counter">
+          <button class="btn-counter" id="btn-rem-m" disabled>−</button>
+          <span class="count" id="count-m">0</span>
+          <button class="btn-counter btn-add" id="btn-add-m">+</button>
+        </div>
+        <div class="pizza-subtotal">Subtotal: <strong id="sub-m">R$ 0,00</strong></div>
+      </div>
+      <!-- Calabresa -->
+      <div class="pizza-card card-c" id="card-c">
+        <div class="pizza-emoji">🌶️</div>
+        <h3>Calabresa</h3>
+        <div class="pizza-lucro">Lucro por pizza: <strong>R$ 25,00</strong></div>
+        <div class="pizza-ing">
+          <span class="ing-tag">0,5 kg massa</span>
+          <span class="ing-tag">0,2 kg queijo</span>
+          <span class="ing-tag">0,2 kg molho</span>
+          <span class="ing-tag">0,15 kg calabresa</span>
+        </div>
+        <div class="pizza-counter">
+          <button class="btn-counter" id="btn-rem-c" disabled>−</button>
+          <span class="count" id="count-c">0</span>
+          <button class="btn-counter btn-add" id="btn-add-c">+</button>
+        </div>
+        <div class="pizza-subtotal">Subtotal: <strong id="sub-c">R$ 0,00</strong></div>
+      </div>
+    </div>
+    <div class="order-summary">
+      <div class="ost">Total: <strong id="total-pizzas">0 pizzas</strong></div>
+      <div class="ost">Lucro: <strong id="lucro-total">R$ 0,00</strong></div>
+      <button class="btn-zerar" id="btn-zerar">🗑 Zerar pedido</button>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 3: DASHBOARD -->
+  <section id="section-dashboard">
+    <div class="section-title"><div class="icon">📊</div> Dashboard de Ingredientes</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Uso dos Ingredientes</h3>
+        <canvas id="chart-ingredientes"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Lucro: Atual vs Ótimo</h3>
+        <canvas id="chart-lucro"></canvas>
+      </div>
+    </div>
+    <div class="ing-bars">
+      <div class="ing-bar-item">
+        <div class="ing-bar-label">
+          <span class="name">🌾 Massa</span>
+          <span class="val" id="info-massa">0,00 / 10 kg (0%)</span>
+        </div>
+        <div class="ing-bar-track"><div class="bar-fill ok" id="fill-massa" style="width:0%"></div></div>
+      </div>
+      <div class="ing-bar-item">
+        <div class="ing-bar-label">
+          <span class="name">🧀 Queijo</span>
+          <span class="val" id="info-queijo">0,00 / 5 kg (0%)</span>
+        </div>
+        <div class="ing-bar-track"><div class="bar-fill ok" id="fill-queijo" style="width:0%"></div></div>
+      </div>
+      <div class="ing-bar-item">
+        <div class="ing-bar-label">
+          <span class="name">🍅 Molho</span>
+          <span class="val" id="info-molho">0,00 / 4 kg (0%)</span>
+        </div>
+        <div class="ing-bar-track"><div class="bar-fill ok" id="fill-molho" style="width:0%"></div></div>
+      </div>
+      <div class="ing-bar-item">
+        <div class="ing-bar-label">
+          <span class="name">🌶️ Calabresa</span>
+          <span class="val" id="info-calabresa">0,00 / 2 kg (0%)</span>
+        </div>
+        <div class="ing-bar-track"><div class="bar-fill ok" id="fill-calabresa" style="width:0%"></div></div>
       </div>
     </div>
   </section>
 
-  <!-- 2. MODELO MATEMÁTICO -->
-  <section>
-    <h2><span class="num">2</span> Modelo Matemático</h2>
-
-    <div class="math-block">
-      <div class="label">Variáveis de decisão</div>
-      $x_1$ = número de pizzas de Muçarela<br>
-      $x_2$ = número de pizzas de Calabresa
+  <!-- SEÇÃO 4: OTIMIZADOR -->
+  <section id="section-otimizador">
+    <div class="section-title"><div class="icon">🎯</div> Otimizador Automático</div>
+    <button class="btn-otimizar" id="btn-otimizar">⚡ Calcular Solução Ótima</button>
+    <div id="result-otimizador" class="hidden">
+      <div class="opt-grid">
+        <div class="opt-stat">
+          <div class="lbl">🧀 Muçarela</div>
+          <div class="val" id="opt-m">—</div>
+          <div style="font-size:.8rem;color:var(--muted)">pizzas</div>
+        </div>
+        <div class="opt-stat">
+          <div class="lbl">🌶️ Calabresa</div>
+          <div class="val" id="opt-c">—</div>
+          <div style="font-size:.8rem;color:var(--muted)">pizzas</div>
+        </div>
+        <div class="opt-stat highlight">
+          <div class="lbl">💰 Lucro Máximo</div>
+          <div class="val" id="opt-z">—</div>
+        </div>
+      </div>
+      <button class="btn-aplicar" id="btn-aplicar">✅ Aplicar ao pedido</button>
     </div>
+  </section>
 
+  <!-- SEÇÃO 5: MODELO MATEMÁTICO -->
+  <section id="section-modelo">
+    <div class="section-title"><div class="icon">📐</div> Modelo Matemático</div>
     <div class="math-block">
-      <div class="label">Função Objetivo</div>
-      $$\text{Maximizar } Z = 20x_1 + 25x_2$$
+      <div class="lbl">Variáveis de decisão</div>
+      x₁ = número de pizzas de Muçarela &nbsp;|&nbsp; x₂ = número de pizzas de Calabresa
     </div>
-
     <div class="math-block">
-      <div class="label">Sujeito às restrições</div>
-      <table class="constraint-table">
-        <thead>
-          <tr>
-            <th>Ingrediente</th>
-            <th>Restrição</th>
-            <th>Estoque</th>
-          </tr>
-        </thead>
+      <div class="lbl">Função Objetivo</div>
+      <strong>Maximizar Z = 20x₁ + 25x₂</strong>
+    </div>
+    <div class="math-block">
+      <div class="lbl">Sujeito às restrições de estoque</div>
+      <table class="ct">
+        <thead><tr><th>Ingrediente</th><th>Restrição</th><th>Estoque</th></tr></thead>
         <tbody>
-          <tr>
-            <td>🌾 Massa</td>
-            <td>$0{,}5x_1 + 0{,}5x_2 \leq 10$</td>
-            <td>10 kg</td>
-          </tr>
-          <tr>
-            <td>🧀 Queijo</td>
-            <td>$0{,}3x_1 + 0{,}2x_2 \leq 5$</td>
-            <td>5 kg</td>
-          </tr>
-          <tr>
-            <td>🍅 Molho</td>
-            <td>$0{,}2x_1 + 0{,}2x_2 \leq 4$</td>
-            <td>4 kg</td>
-          </tr>
-          <tr>
-            <td>🌶️ Calabresa</td>
-            <td>$0{,}15x_2 \leq 2$</td>
-            <td>2 kg</td>
-          </tr>
-          <tr>
-            <td colspan="2">Não negatividade</td>
-            <td>$x_1, x_2 \geq 0 \in \mathbb{Z}$</td>
-          </tr>
+          <tr><td>🌾 Massa</td>    <td>0,5x₁ + 0,5x₂ ≤ 10</td><td>10 kg</td></tr>
+          <tr><td>🧀 Queijo</td>   <td>0,3x₁ + 0,2x₂ ≤ 5</td> <td>5 kg</td></tr>
+          <tr><td>🍅 Molho</td>    <td>0,2x₁ + 0,2x₂ ≤ 4</td> <td>4 kg</td></tr>
+          <tr><td>🌶️ Calabresa</td><td>0,15x₂ ≤ 2</td>        <td>2 kg</td></tr>
+          <tr><td colspan="2">Não-negatividade inteira</td><td>x₁, x₂ ≥ 0 ∈ ℤ</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <!-- 3. CÓDIGO PYTHON -->
-  <section>
-    <h2><span class="num">3</span> Solução em Python (PuLP)</h2>
-    <div class="code-wrapper">
+  <!-- SEÇÃO 6: CÓDIGO PYTHON -->
+  <section id="section-codigo">
+    <div class="section-title"><div class="icon">💻</div> Código Python (PuLP)</div>
+    <div class="code-wrap">
       <div class="code-header">
         <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         <span>otimizapizza.py</span>
       </div>
       <pre><code class="language-python">import pulp
 
-# ── Criação do problema ──────────────────────────────────────
+# ── Criar o problema ─────────────────────────────────────────
 prob = pulp.LpProblem("Maximizacao_Lucro_Pizzas", pulp.LpMaximize)
 
 # ── Variáveis de decisão (inteiras, não-negativas) ───────────
@@ -458,53 +473,13 @@ prob.solve(pulp.PULP_CBC_CMD(msg=0))
 print(f"Status: {pulp.LpStatus[prob.status]}")
 print(f"Pizzas de Muçarela:  {int(x1.varValue)}")
 print(f"Pizzas de Calabresa: {int(x2.varValue)}")
-print(f"Lucro máximo: R$ {pulp.value(prob.objective):.2f}")</code></pre>
-    </div>
-  </section>
+print(f"Lucro máximo: R$ {pulp.value(prob.objective):.2f}")
 
-  <!-- 4. RESULTADO -->
-  <section>
-    <h2><span class="num">4</span> Resultado da Otimização</h2>
-
-    <div class="status-badge">Status: Optimal</div>
-
-    <div class="results-hero">
-      <div class="subtitle">Lucro Máximo Alcançado</div>
-      <div class="lucro">R$ 465,00</div>
-      <div class="lucro-label">valor ótimo da função objetivo</div>
-    </div>
-
-    <div class="result-cards">
-      <div class="result-card">
-        <div class="pizza-icon">🍕</div>
-        <div class="pizza-name">Muçarela (x₁)</div>
-        <div class="pizza-qty">7 <span>pizzas</span></div>
-      </div>
-      <div class="result-card">
-        <div class="pizza-icon">🍕</div>
-        <div class="pizza-name">Calabresa (x₂)</div>
-        <div class="pizza-qty">13 <span>pizzas</span></div>
-      </div>
-    </div>
-
-    <h3 style="font-size:1rem;color:#555;margin-bottom:1rem">Uso do Estoque</h3>
-    <div class="stock-bars">
-      <div class="stock-bar-item">
-        <label><span>🌾 Massa</span><span>10,0 / 10 kg — <strong>100%</strong></span></label>
-        <div class="stock-bar-track"><div class="stock-bar-fill full" style="width:100%"></div></div>
-      </div>
-      <div class="stock-bar-item">
-        <label><span>🧀 Queijo</span><span>4,7 / 5 kg — <strong>94%</strong></span></label>
-        <div class="stock-bar-track"><div class="stock-bar-fill" style="width:94%"></div></div>
-      </div>
-      <div class="stock-bar-item">
-        <label><span>🍅 Molho</span><span>4,0 / 4 kg — <strong>100%</strong></span></label>
-        <div class="stock-bar-track"><div class="stock-bar-fill full" style="width:100%"></div></div>
-      </div>
-      <div class="stock-bar-item">
-        <label><span>🌶️ Calabresa</span><span>1,95 / 2 kg — <strong>97,5%</strong></span></label>
-        <div class="stock-bar-track"><div class="stock-bar-fill" style="width:97.5%"></div></div>
-      </div>
+# Saída:
+# Status: Optimal
+# Pizzas de Muçarela:  7
+# Pizzas de Calabresa: 13
+# Lucro máximo: R$ 465.00</code></pre>
     </div>
   </section>
 
@@ -514,8 +489,323 @@ print(f"Lucro máximo: R$ {pulp.value(prob.objective):.2f}")</code></pre>
   Desenvolvido por <strong>Ana Clara Amim</strong> · Programação Linear com Python/PuLP
 </footer>
 
+<div id="toast"></div>
+
 <script>
-  document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); });
+// ============================================================
+// ESTADO
+// ============================================================
+const DEFAULT_STOCK = { massa: 10, queijo: 5, molho: 4, calabresa: 2 };
+const RECIPES = {
+  m: { massa: 0.5, queijo: 0.3, molho: 0.2, calabresa: 0,    lucro: 20, name: 'Muçarela'  },
+  c: { massa: 0.5, queijo: 0.2, molho: 0.2, calabresa: 0.15, lucro: 25, name: 'Calabresa' }
+};
+
+let stock   = { ...DEFAULT_STOCK };
+let order   = { m: 0, c: 0 };
+let optimal = null;
+let charts  = {};
+let toastTimer = null;
+
+// ============================================================
+// LÓGICA
+// ============================================================
+function getUsage(ord) {
+  ord = ord || order;
+  return {
+    massa:     RECIPES.m.massa     * ord.m + RECIPES.c.massa     * ord.c,
+    queijo:    RECIPES.m.queijo    * ord.m + RECIPES.c.queijo    * ord.c,
+    molho:     RECIPES.m.molho     * ord.m + RECIPES.c.molho     * ord.c,
+    calabresa: RECIPES.m.calabresa * ord.m + RECIPES.c.calabresa * ord.c
+  };
+}
+
+function isFeasible(ord) {
+  const u = getUsage(ord);
+  const eps = 1e-9;
+  return u.massa     <= stock.massa     + eps &&
+         u.queijo    <= stock.queijo    + eps &&
+         u.molho     <= stock.molho     + eps &&
+         u.calabresa <= stock.calabresa + eps;
+}
+
+function getLucro(ord) {
+  ord = ord || order;
+  return RECIPES.m.lucro * ord.m + RECIPES.c.lucro * ord.c;
+}
+
+function getViolations(ord) {
+  const u = getUsage(ord);
+  const v = [];
+  if (u.massa     > stock.massa     + 1e-9) v.push('Massa (' + u.massa.toFixed(2) + '/' + stock.massa + ' kg)');
+  if (u.queijo    > stock.queijo    + 1e-9) v.push('Queijo (' + u.queijo.toFixed(2) + '/' + stock.queijo + ' kg)');
+  if (u.molho     > stock.molho     + 1e-9) v.push('Molho (' + u.molho.toFixed(2) + '/' + stock.molho + ' kg)');
+  if (u.calabresa > stock.calabresa + 1e-9) v.push('Calabresa (' + u.calabresa.toFixed(2) + '/' + stock.calabresa + ' kg)');
+  return v;
+}
+
+function optimize() {
+  const maxM = Math.ceil(stock.massa / 0.5) + 2;
+  const maxC = stock.calabresa > 0
+    ? Math.ceil(Math.min(stock.massa / 0.5, stock.calabresa / 0.15)) + 2
+    : Math.ceil(stock.massa / 0.5) + 2;
+  let best = { m: 0, c: 0, z: 0 };
+  for (let m = 0; m <= maxM; m++) {
+    for (let c = 0; c <= maxC; c++) {
+      const ord = { m, c };
+      if (isFeasible(ord)) {
+        const z = getLucro(ord);
+        if (z > best.z) best = { m, c, z };
+      }
+    }
+  }
+  return best;
+}
+
+// ============================================================
+// INTERAÇÃO
+// ============================================================
+function changeOrder(type, delta) {
+  const newOrder = { m: order.m, c: order.c };
+  newOrder[type] = Math.max(0, newOrder[type] + delta);
+  if (delta > 0 && !isFeasible(newOrder)) {
+    const violations = getViolations(newOrder);
+    showToast('❌ Estoque insuficiente!\n' + violations.join(' · '), 'error');
+    shakeCard(type);
+    return;
+  }
+  order = newOrder;
+  updateAll();
+}
+
+function resetOrder() {
+  order = { m: 0, c: 0 };
+  updateAll();
+  showToast('🗑 Pedido zerado.', 'warn');
+}
+
+function applyOptimal() {
+  if (!optimal) return;
+  order = { m: optimal.m, c: optimal.c };
+  updateAll();
+  showToast('✅ Solução ótima aplicada!', 'success');
+}
+
+function shakeCard(type) {
+  const card = document.getElementById('card-' + type);
+  card.classList.remove('shake');
+  void card.offsetWidth;
+  card.classList.add('shake');
+  setTimeout(function() { card.classList.remove('shake'); }, 400);
+}
+
+function runOptimizer() {
+  optimal = optimize();
+  document.getElementById('result-otimizador').classList.remove('hidden');
+  document.getElementById('opt-m').textContent = optimal.m;
+  document.getElementById('opt-c').textContent = optimal.c;
+  document.getElementById('opt-z').textContent = 'R$ ' + optimal.z.toFixed(2).replace('.', ',');
+  updateChartLucro();
+  showToast('🎯 Ótimo: ' + optimal.m + ' Muçarela + ' + optimal.c + ' Calabresa = R$ ' + optimal.z.toFixed(2).replace('.', ','), 'success');
+}
+
+// ============================================================
+// UI
+// ============================================================
+function fmt(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
+
+function updateAll() {
+  updateCounters();
+  updateBars();
+  updateButtonStates();
+  updateChartIngredientes();
+  updateChartLucro();
+}
+
+function updateCounters() {
+  document.getElementById('count-m').textContent = order.m;
+  document.getElementById('count-c').textContent = order.c;
+  document.getElementById('sub-m').textContent = fmt(order.m * RECIPES.m.lucro);
+  document.getElementById('sub-c').textContent = fmt(order.c * RECIPES.c.lucro);
+  const t = order.m + order.c;
+  document.getElementById('total-pizzas').textContent = t + ' pizza' + (t !== 1 ? 's' : '');
+  const z = getLucro();
+  document.getElementById('lucro-total').textContent = fmt(z);
+  document.getElementById('lucro-atual').textContent = fmt(z);
+}
+
+function updateBars() {
+  const usage = getUsage();
+  [
+    { key: 'massa',     used: usage.massa,     max: stock.massa     },
+    { key: 'queijo',    used: usage.queijo,    max: stock.queijo    },
+    { key: 'molho',     used: usage.molho,     max: stock.molho     },
+    { key: 'calabresa', used: usage.calabresa, max: stock.calabresa }
+  ].forEach(function(item) {
+    const pct = item.max > 0 ? Math.min(100, (item.used / item.max) * 100) : 0;
+    const fill = document.getElementById('fill-' + item.key);
+    const info = document.getElementById('info-' + item.key);
+    if (fill) {
+      fill.style.width = pct + '%';
+      fill.className = 'bar-fill ' + (pct >= 100 ? 'full' : pct >= 80 ? 'warn' : 'ok');
+    }
+    if (info) info.textContent = item.used.toFixed(2) + ' / ' + item.max + ' kg (' + pct.toFixed(0) + '%)';
+  });
+}
+
+function updateButtonStates() {
+  ['m', 'c'].forEach(function(type) {
+    const testOrder = { m: order.m, c: order.c };
+    testOrder[type] = testOrder[type] + 1;
+    const canAdd = isFeasible(testOrder);
+    const btnAdd = document.getElementById('btn-add-' + type);
+    const btnRem = document.getElementById('btn-rem-' + type);
+    if (canAdd) btnAdd.classList.remove('blocked');
+    else        btnAdd.classList.add('blocked');
+    btnRem.disabled = order[type] === 0;
+  });
+}
+
+// ============================================================
+// ESTOQUE
+// ============================================================
+function syncStock() {
+  stock.massa     = parseFloat(document.getElementById('stock-massa').value)     || 0;
+  stock.queijo    = parseFloat(document.getElementById('stock-queijo').value)    || 0;
+  stock.molho     = parseFloat(document.getElementById('stock-molho').value)     || 0;
+  stock.calabresa = parseFloat(document.getElementById('stock-calabresa').value) || 0;
+  while (!isFeasible(order)) {
+    if      (order.c > 0) order.c--;
+    else if (order.m > 0) order.m--;
+    else break;
+  }
+  optimal = null;
+  document.getElementById('result-otimizador').classList.add('hidden');
+  updateAll();
+}
+
+function resetStock() {
+  stock = { massa: 10, queijo: 5, molho: 4, calabresa: 2 };
+  document.getElementById('stock-massa').value     = 10;
+  document.getElementById('stock-queijo').value    = 5;
+  document.getElementById('stock-molho').value     = 4;
+  document.getElementById('stock-calabresa').value = 2;
+  updateAll();
+  showToast('↺ Estoque restaurado ao padrão.', 'warn');
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+function initCharts() {
+  var ctxI = document.getElementById('chart-ingredientes').getContext('2d');
+  charts.ing = new Chart(ctxI, {
+    type: 'bar',
+    data: {
+      labels: ['Massa', 'Queijo', 'Molho', 'Calabresa'],
+      datasets: [
+        {
+          label: 'Usado',
+          data: [0, 0, 0, 0],
+          backgroundColor: '#1a3a7c',
+          borderRadius: 4
+        },
+        {
+          label: 'Disponível',
+          data: [stock.massa, stock.queijo, stock.molho, stock.calabresa],
+          backgroundColor: '#e8ecf4',
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+      scales: {
+        x: { stacked: false },
+        y: { ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  var ctxL = document.getElementById('chart-lucro').getContext('2d');
+  charts.lucro = new Chart(ctxL, {
+    type: 'bar',
+    data: {
+      labels: ['Atual', 'Ótimo'],
+      datasets: [{
+        label: 'Lucro (R$)',
+        data: [0, 0],
+        backgroundColor: ['#1a3a7c', '#27ae60'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: function(v){ return 'R$' + v; }, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+function updateChartIngredientes() {
+  if (!charts.ing) return;
+  var u = getUsage();
+  charts.ing.data.datasets[0].data = [u.massa, u.queijo, u.molho, u.calabresa];
+  charts.ing.data.datasets[1].data = [
+    Math.max(0, stock.massa     - u.massa),
+    Math.max(0, stock.queijo    - u.queijo),
+    Math.max(0, stock.molho     - u.molho),
+    Math.max(0, stock.calabresa - u.calabresa)
+  ];
+  charts.ing.update('none');
+}
+
+function updateChartLucro() {
+  if (!charts.lucro) return;
+  var optZ = optimal ? optimal.z : 0;
+  charts.lucro.data.datasets[0].data = [getLucro(), optZ];
+  charts.lucro.update('none');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show toast-' + (type || 'success');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.className = ''; }, 3200);
+}
+
+// ============================================================
+// EVENTOS
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('btn-add-m').addEventListener('click', function(){ changeOrder('m',  1); });
+  document.getElementById('btn-rem-m').addEventListener('click', function(){ changeOrder('m', -1); });
+  document.getElementById('btn-add-c').addEventListener('click', function(){ changeOrder('c',  1); });
+  document.getElementById('btn-rem-c').addEventListener('click', function(){ changeOrder('c', -1); });
+  document.getElementById('btn-zerar').addEventListener('click', resetOrder);
+  document.getElementById('btn-otimizar').addEventListener('click', runOptimizer);
+  document.getElementById('btn-aplicar').addEventListener('click', applyOptimal);
+  document.getElementById('btn-reset-stock').addEventListener('click', resetStock);
+
+  ['stock-massa','stock-queijo','stock-molho','stock-calabresa'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', syncStock);
+  });
+
+  hljs.highlightAll();
+  initCharts();
+  updateAll();
+});
 </script>
 </body>
 </html>
